@@ -1,0 +1,3 @@
+Simple RX board with only one LoRA reciever (swapable to E22 433Mhz and 868Mhz).
+MCU: Arduino Nano
+Ebyte module connected to RX0 and TX0 on Arduino. For flashing via usb you have to disconnect module from this place and after connect back. Or you can use ISP pins flashing
