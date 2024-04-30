@@ -63,7 +63,6 @@ void loop(){
 //      Serial.print(data[3]);
 //      Serial.print(" ");
 //      Serial.println();
-//      dispLED.print(data[0]);
 //      myservo.write(map(data[1],0,1023,0,180));
   }
 
