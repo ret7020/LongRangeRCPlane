@@ -1,0 +1,1 @@
+This is an extension for SimpleRX module based on Arudino Nano. It is a small board with gps and LoRA 433Mhz (can be switched to 868Mhz module).

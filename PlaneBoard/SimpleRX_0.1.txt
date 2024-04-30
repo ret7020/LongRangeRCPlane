@@ -1,3 +1,16 @@
 Simple RX board with only one LoRA reciever (swapable to E22 433Mhz and 868Mhz).
 MCU: Arduino Nano
-Ebyte module connected to RX0 and TX0 on Arduino. For flashing via usb you have to disconnect module from this place and after connect back. Or you can use ISP pins flashing
+Ebyte module connected to RX0 and TX0 on Arduino. For flashing via usb you have to disconnect module from this place and after connect back. Or you can use ISP pins for flashing.
+
+This board supports up to 4 servos connected to analog pins (A0, A1, A2, A3). Servos get 5V from onboard 5V regulator (it powers arduino, servos, lora and other servos).
+
+This board supports I2C sensors (connected to A4, A5 pins bus), like: 6Axis Gyro, AHT20_BMP280 temp and bar sensor.
+
+Disadvantages of this board:
+Main problem: not enough UART on MCU (only one, but system)
+* You can't normally flash it, because LoRA use it
+* We don't have GPS module (it is UART)
+* We don't have telemetry (it is UART we don't have)
+
+Why we don't use SoftwareSerial. Builtin lib have limits by speed (9600 bod) and it have some lagging when reading.
+

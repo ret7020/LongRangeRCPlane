@@ -1,0 +1,2 @@
+This board use Arduino Mega pro 2560 as MCU. It have 4 UART pins, UART0 used for flashing, so we don't use it.
+UART are used
