@@ -1,0 +1,12 @@
+This is a full-featured board based on ESP32 ESP-32S.
+Features:
+* 2 transceivers with E22 loras (recomended setup is 433Mhz and 868Mhz module). Default behaviour: 433 send telem, 868 recieve commands. But it will support on-fly change to different modes, like swap telem and command modules, recieve commands on both and other combs.
+
+* GPS Reciever
+* MPU6500 I2c
+* BMP280 + AHT20 for barometer based alt
+* WiFi pre-flight check and configuration (It will be disabled while flight)
+* GSM emergency telem (Send some messages when plane not sure that have communication with base-station)
+* Camera and VTX voltage regulator
+Maybe OSD?
+* Up to 5 servos control and esc (same ports can be used for ESC and servos)
