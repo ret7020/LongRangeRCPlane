@@ -1,0 +1,12 @@
+#define DEBUG 1
+
+
+// LoRa part
+#define MODE_PIN 23
+
+// HTTP Pre-Flight server and WiFi config
+#define HTTP_DEBUG 1
+#define WIFI_SSID XXX
+#define WIFI_PSK XXX
+
+#define HTTP_PORT 80

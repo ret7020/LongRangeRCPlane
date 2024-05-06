@@ -6,7 +6,7 @@ Features:
 * MPU6500 I2c
 * BMP280 + AHT20 for barometer based alt
 * WiFi pre-flight check and configuration (It will be disabled while flight)
-* GSM emergency telem (Send some messages when plane not sure that have communication with base-station)
+* GSM emergency telem (Send some messages when plane not sure that have communication with base-station). It can connect to network and send http requests with telem data, but it will try to send sms if problems
 * Camera and VTX voltage regulator
 Maybe OSD?
 * Up to 5 servos control and esc (same ports can be used for ESC and servos)
