@@ -108,40 +108,58 @@
 <body>
     <h1 class="header">ESP32 FC</h1>
     <div class="stats">
-        <h3>Pre-fligh check table</h3>
+        <div>
+            <h3>Pre-fligh check table</h3>
 
-
-        <div class="wrapper">
-
-            <div class="table">
-
-                <div class="row header">
-                    <div class="cell">
-                        Name
+            <div class="wrapper">
+                <div class="table">
+                    <div class="row header">
+                        <div class="cell">
+                            Name
+                        </div>
+                        <div class="cell">
+                            Curr value
+                        </div>
+                        <div class="cell">
+                            Normal
+                        </div>
+                        <div class="cell">
+                            Comment
+                        </div>
                     </div>
-                    <div class="cell">
-                        Curr value
-                    </div>
-                    <div class="cell">
-                        Normal
-                    </div>
-                    <div class="cell">
-                        Comment
+
+                    <div class="row">
+                        <div class="cell" data-title="Name">
+                            Control Rate (last 20)
+                        </div>
+                        <div class="cell" data-title="Curr value">
+                            25 Hz
+                        </div>
+                        <div class="cell" data-title="Normal">
+                            > 20 Hz
+                        </div>
+                        <div class="cell" data-title="Comment">
+                            Count of packages recieved in 1000ms
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div>
+            <h3>Pre-fligh actions</h3>
 
-                <div class="row">
-                    <div class="cell" data-title="Name">
-                        Control Rate (last 20)
-                    </div>
-                    <div class="cell" data-title="Curr value">
-                        25 Hz
-                    </div>
-                    <div class="cell" data-title="Normal">
-                        > 20 Hz
-                    </div>
-                    <div class="cell" data-title="Comment">
-                        Count of packages recieved in 1000ms
+            <div class="wrapper">
+                <div class="table">
+                    <div class="row header">
+                        <div class="cell">
+                            Name
+                        </div>
+                        <div class="cell">
+                            Action
+                        </div>
+                        <div class="cell">
+                            Status
+                        </div>
                     </div>
                 </div>
             </div>

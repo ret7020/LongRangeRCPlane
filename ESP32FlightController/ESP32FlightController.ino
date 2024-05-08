@@ -1,6 +1,12 @@
 #include <ESP32Servo.h>
 #include "config.h"
 #include <WiFi.h>
+#include <SoftwareSerial.h>
+
+
+EspSoftwareSerial::UART gpsUart;
+
+
 
 // Runtime variables
 byte loraData[8];
@@ -89,14 +95,18 @@ void setup()
         server.begin();
     #endif
 #endif
-
     digitalWrite(MODE_PIN, 0); // Normal mode
     delay(1000);
     Serial2.flush();
+    gpsUart.begin(9600, SWSERIAL_8N1, GPS_RX, GPS_TX, false);
 }
 
 void loop()
 {
+    // while (gpsUart.available()){
+    //     Serial.write(gpsUart.read());
+    // }
+    
     // LoRa recieve part
     if (Serial2.available()){
         byte incomingByte = Serial2.read();
@@ -133,47 +143,47 @@ void loop()
         }
     }
 
-    // Ground WiFi
-    #ifdef HTTP_DEBUG
-        WiFiClient client = server.available();
+    // // Ground WiFi
+    // #ifdef HTTP_DEBUG
+    //     WiFiClient client = server.available();
 
-        if (client) {                     
-            #if DEBUG        
-            Serial.println("New Client.");
-            #endif
-            String currentLine = "";
-            while (client.connected()) {
-            if (client.available()) {
-                char c = client.read();
-                #ifdef DEBUG
-                Serial.write(c);
-                #endif
-                header += c;
-                if (c == '\n') {
-                    if (currentLine.length() == 0) {
-                        client.println("HTTP/1.1 200 OK");
-                        client.println("Content-type:text/html");
-                        client.println("Connection: close");
-                        client.println();
-                        client.println();
-                        client.println(lastAvgFreq);
+    //     if (client) {                     
+    //         #if DEBUG        
+    //         Serial.println("New Client.");
+    //         #endif
+    //         String currentLine = "";
+    //         while (client.connected()) {
+    //         if (client.available()) {
+    //             char c = client.read();
+    //             #ifdef DEBUG
+    //             Serial.write(c);
+    //             #endif
+    //             header += c;
+    //             if (c == '\n') {
+    //                 if (currentLine.length() == 0) {
+    //                     client.println("HTTP/1.1 200 OK");
+    //                     client.println("Content-type:text/html");
+    //                     client.println("Connection: close");
+    //                     client.println();
+    //                     client.println();
+    //                     client.println(lastAvgFreq);
 
-                        break;
-                    } else { 
-                        currentLine = "";
-                    }
-                } else if (c != '\r') {
-                    currentLine += c;
-                }
-            }
-        }
-        // Clear the header variable
-        header = "";
-        // Close the connection
-        client.stop();
-        Serial.println("Client disconnected.");
-        Serial.println("");
-    }
+    //                     break;
+    //                 } else { 
+    //                     currentLine = "";
+    //                 }
+    //             } else if (c != '\r') {
+    //                 currentLine += c;
+    //             }
+    //         }
+    //     }
+    //     // Clear the header variable
+    //     header = "";
+    //     // Close the connection
+    //     client.stop();
+    //     Serial.println("Client disconnected.");
+    //     Serial.println("");
+    // }
 
-    #endif
+    // #endif
 }
