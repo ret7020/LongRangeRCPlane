@@ -10,3 +10,5 @@ Features:
 * Camera and VTX voltage regulator
 Maybe OSD?
 * Up to 5 servos control and esc (same ports can be used for ESC and servos)
+* Accumulator meter (Voltage, Capacity)
+* Consume current meter
