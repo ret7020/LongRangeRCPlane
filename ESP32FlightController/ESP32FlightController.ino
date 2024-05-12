@@ -6,8 +6,6 @@
 
 EspSoftwareSerial::UART gpsUart;
 
-
-
 // Runtime variables
 byte loraData[8];
 byte prev = 0;
@@ -17,10 +15,21 @@ uint16_t freqSum = 0;
 uint8_t freqCount = 0;
 uint8_t lastAvgFreq = 0;
 
-// TODO Array
+// Servos control
+// Adjustable for different airplanes configurations
+// Indexes are predefined in such order
+#define LA_INDEX 0 // Left aileron
+#define RA_INDEX 1 // Right aileron
+#define ELEV_INDEX 2 // Elevator
+// Not used in current plane
+#define 
+
+Servo servos[10] = {};
+
 Servo leftAileron;
 Servo rightAileron;
 Servo elevator;
+
 
 #ifdef HTTP_DEBUG
 WiFiServer server(HTTP_PORT);
