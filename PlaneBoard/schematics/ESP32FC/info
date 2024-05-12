@@ -4,7 +4,7 @@
   "name": "ESP32FC",
   "content": "",
   "created_at": "2024-05-06 19:24:12",
-  "updated_at": "2024-05-12 20:01:11",
+  "updated_at": "2024-05-13 00:24:16",
   "stick": "",
   "documents": [
     {
@@ -18,7 +18,10 @@
         "607fb56896514b40904c54e283412385": 1,
         "93b44d62463c4c9c82dd7108c8ee7d73": 1,
         "0b833263bcfb409d8a029dcd9c6a3b59": 2,
-        "68f7e4d13308424688d69be54f005158": 2
+        "68f7e4d13308424688d69be54f005158": 6,
+        "603d34cad7cd40c09d7f128a516f1a29": 2,
+        "412526ccb1374a06ad7a933d7c1131f1": 3,
+        "ef426d4a8d544b74a9057e9a2a21b39a": 1
       },
       "BOM": [
         [
@@ -45,6 +48,62 @@
           }
         ],
         [
+          "MP1584 5V",
+          1,
+          "MP1584EN-5V",
+          "M1",
+          {
+            "Manufacturer Part": "MP1584EN",
+            "Contributor": "raychelm",
+            "spiceSymbolName": "MP1584EN copy",
+            "puuid": "b5cbf38ce8cf481688b424ee44bc6c4d",
+            "uuid": "412526ccb1374a06ad7a933d7c1131f1"
+          }
+        ],
+        [
+          "MP1584 3.3V",
+          1,
+          "MP1584EN-5V",
+          "M2",
+          {
+            "Manufacturer Part": "MP1584EN",
+            "Contributor": "raychelm",
+            "spiceSymbolName": "MP1584EN copy",
+            "puuid": "b5cbf38ce8cf481688b424ee44bc6c4d",
+            "uuid": "412526ccb1374a06ad7a933d7c1131f1"
+          }
+        ],
+        [
+          "MP1584 12V",
+          1,
+          "MP1584EN-5V",
+          "M3",
+          {
+            "Manufacturer Part": "MP1584EN",
+            "Contributor": "raychelm",
+            "spiceSymbolName": "MP1584EN copy",
+            "puuid": "b5cbf38ce8cf481688b424ee44bc6c4d",
+            "uuid": "412526ccb1374a06ad7a933d7c1131f1"
+          }
+        ],
+        [
+          "Acc power",
+          1,
+          "CONN-TH_2P-P5.08",
+          "P1",
+          {
+            "Supplier Part": "",
+            "Supplier": "LCSC",
+            "Manufacturer": "",
+            "Manufacturer Part": "",
+            "image": "",
+            "Contributor": "LCEDA_Lib",
+            "spiceSymbolName": "CONN-TH_2P-P5.08",
+            "puuid": "e51909bf23504bf8a04c047f1f5257e0",
+            "uuid": "ef426d4a8d544b74a9057e9a2a21b39a"
+          }
+        ],
+        [
           "2N2222",
           2,
           "TO-92-3_L4.9-W3.7-P1.27-L",
@@ -60,6 +119,23 @@
             "spiceSymbolName": "2N2222",
             "puuid": "6924b36489de4921bb29ca14bf27c33f",
             "uuid": "0b833263bcfb409d8a029dcd9c6a3b59"
+          }
+        ],
+        [
+          "4.7K 1206",
+          4,
+          "RESISTOR-SMD-1206",
+          "R1,R4,R5,R6",
+          {
+            "Manufacturer": "",
+            "Manufacturer Part": "",
+            "Supplier Part": "",
+            "Supplier": "Banggood",
+            "link": "",
+            "Contributor": "WalterHaazen",
+            "spiceSymbolName": "Resistor-SMD-1206",
+            "puuid": "6b556ed28a344bb785752d6fd3f6576b",
+            "uuid": "68f7e4d13308424688d69be54f005158"
           }
         ],
         [
@@ -96,18 +172,77 @@
             "puuid": "005f5c9887fe4df0bcb2693bc1357a87",
             "uuid": "607fb56896514b40904c54e283412385"
           }
+        ],
+        [
+          "E22400T30D",
+          1,
+          "GW-EBYTE-E22-H",
+          "U2",
+          {
+            "Manufacturer": "",
+            "Manufacturer Part": "",
+            "Supplier Part": "",
+            "Supplier": "",
+            "link": "https://atta.szlcsc.com/upload/public/pdf/source/20200421/C518905_D8E5D6CF4048BCDC739E445BB67568CA.pdf",
+            "Contributor": "",
+            "spiceSymbolName": "GW-Ebyte-E22400T22D-TTL-LoRa",
+            "puuid": "e1d1f87ae3f249ec998e449fb0b40759",
+            "uuid": "603d34cad7cd40c09d7f128a516f1a29"
+          }
+        ],
+        [
+          "E22800T30D",
+          1,
+          "GW-EBYTE-E22-H",
+          "U3",
+          {
+            "Manufacturer": "",
+            "Manufacturer Part": "",
+            "Supplier Part": "",
+            "Supplier": "",
+            "link": "https://atta.szlcsc.com/upload/public/pdf/source/20200421/C518905_D8E5D6CF4048BCDC739E445BB67568CA.pdf",
+            "Contributor": "",
+            "spiceSymbolName": "GW-Ebyte-E22400T22D-TTL-LoRa",
+            "puuid": "e1d1f87ae3f249ec998e449fb0b40759",
+            "uuid": "603d34cad7cd40c09d7f128a516f1a29"
+          }
         ]
       ],
-      "updateTime": 1715533271,
+      "updateTime": 1715549056,
       "createTime": 1715012652,
       "histories": [],
       "created_at": "2024-05-06 19:24:12",
-      "updated_at": "2024-05-12 20:01:11"
+      "updated_at": "2024-05-13 00:24:16"
+    },
+    {
+      "uuid": "8e75ab237189abb3b4f1f06763c18f45",
+      "puuid": "93071b904af74646fa30f175a55eafad",
+      "title": "PCB_ESP32FC",
+      "filename": "PCB_ESP32FC.json",
+      "description": "",
+      "docType": "3",
+      "master": "",
+      "thumb": "/images/thumb-default.png",
+      "components": {
+        "df3ca37cb13d499cb713e9aa6fdd0c7b": 1,
+        "6924b36489de4921bb29ca14bf27c33f": 2,
+        "6b556ed28a344bb785752d6fd3f6576b": 4,
+        "005f5c9887fe4df0bcb2693bc1357a87": 1,
+        "e1d1f87ae3f249ec998e449fb0b40759": 2,
+        "b5cbf38ce8cf481688b424ee44bc6c4d": 3,
+        "e51909bf23504bf8a04c047f1f5257e0": 1
+      },
+      "BOM": [],
+      "updateTime": 1715547641,
+      "createTime": 1715534079,
+      "histories": [],
+      "created_at": "2024-05-12 20:14:39",
+      "updated_at": "2024-05-13 00:00:41"
     }
   ],
   "sort": [],
   "title": "ESP32FC",
   "foldername": "ESP32FC",
   "schfilename": "ESP32FC.json",
-  "schfilemtime": 1715533271320
+  "schfilemtime": 1715549056585
 }
