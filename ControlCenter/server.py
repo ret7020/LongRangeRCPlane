@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify
 import time
 import serial, threading
 from config import *
+from tokens import YANDEX_MAPS_TOKEN
 
 def readDebugUart(app):
     while 1:
@@ -20,7 +21,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", API_KEY=YANDEX_MAPS_TOKEN)
 
 @app.route("/api/repeater/metrics")
 def plane_metrics():
