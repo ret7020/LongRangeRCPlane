@@ -2,6 +2,9 @@
 #include "config.h"
 #include <WiFi.h>
 #include <SoftwareSerial.h>
+#include "FastIMU.h"
+#include "Madgwick.h"
+#include <Wire.h>
 
 
 EspSoftwareSerial::UART gpsUart;
@@ -15,6 +18,11 @@ uint16_t freqSum = 0;
 uint8_t freqCount = 0;
 uint8_t lastAvgFreq = 0;
 
+#ifdef IMU_ENABLE
+double imuRoll, imuPitch, imuYaw;
+double imuQW, imuQX, imuQY, imuQZ;
+#endif
+
 // Servos control
 // Adjustable for different airplanes configurations
 // Indexes are predefined in such order
@@ -22,7 +30,7 @@ uint8_t lastAvgFreq = 0;
 #define RA_INDEX 1 // Right aileron
 #define ELEV_INDEX 2 // Elevator
 // Not used in current plane
-#define 
+#define RUDDER_INDEX
 
 Servo servos[10] = {};
 
@@ -35,6 +43,22 @@ Servo elevator;
 WiFiServer server(HTTP_PORT);
 String header;
 #endif
+
+// IMU Setup
+#ifdef IMU_ENABLE
+MPU6500 IMU;
+calData calib = {0};
+AccelData IMUAccel;
+GyroData IMUGyro;
+MagData IMUMag;
+Madgwick filter;
+
+#endif
+
+
+
+// Updates store
+uint64_t imuLastUpdate = 0;
 
 void printf(char *format, int number, HardwareSerial &refSer)
 {
@@ -116,17 +140,14 @@ void loop()
     //     Serial.write(gpsUart.read());
     // }
     
-    // LoRa recieve part
+    // LoRa recieve part (max freq)
     if (Serial2.available()){
         byte incomingByte = Serial2.read();
         if (prev == 255 && incomingByte == 30)
         {
-            loraData[0] = Serial2.read();
-            loraData[1] = Serial2.read();
-            loraData[2] = Serial2.read();
-            loraData[3] = Serial2.read();
-            loraData[4] = Serial2.read();
-            //        Serial.println(loraData[4]);
+            for (int i = 0; i <= 4; i++){
+                loraData[i] = Serial2.read();
+            }
             if (freqCount < 20)
             {
                 freqSum += millis() - last;
@@ -150,6 +171,10 @@ void loop()
         {
             prev = incomingByte;
         }
+    }
+
+    if (millis() - imuLastUpdate >= IMU_REFRESH_INTERVAL) {
+
     }
 
     // // Ground WiFi

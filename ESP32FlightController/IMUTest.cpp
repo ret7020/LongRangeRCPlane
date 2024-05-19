@@ -13,6 +13,7 @@ MagData IMUMag;
 Madgwick filter;
 double qw, qx, qy, qz;
 double yaw, roll, pitch;
+double rad2deg = 180 / 3.14;
 
 void setup()
 {
@@ -117,15 +118,15 @@ void loop()
     qy = filter.getQuatY();
     qz = filter.getQuatZ();
 
-    yaw = atan2(2.0 * (qy * qz + qw * qx), qw * qw - qx * qx - qy * qy + qz * qz);
-    pitch = asin(-2.0 * (qx * qz - qw * qy));
-    roll = atan2(2.0 * (qx * qy + qw * qz), qw * qw + qx * qx - qy * qy - qz * qz);
-    Serial.print(roll * (180 / 3.14));
-    Serial.print("     ");
-    Serial.print(pitch * (180 / 3.14));
-    Serial.print("     ");
-    Serial.print(yaw * (180 / 3.14));
-    Serial.print("     ");
+    yaw = atan2(2.0 * (qx * qy + qw * qz), qw * qw + qx * qx - qy * qy - qz * qz) * rad2deg;
+    pitch = atan2(2.0 * (qy * qz + qw * qx), qw * qw - qx * qx - qy * qy + qz * qz) * -rad2deg;
+    roll = asin(-2.0 * (qx * qz - qw * qy)) * -rad2deg;
+    Serial.print(roll); // ROLL
+    Serial.print(";");
+    Serial.print(pitch); // PITCH
+    Serial.print(";");
+    Serial.print(yaw); // YAW
+    Serial.print(";");
     Serial.println(); 
 
 
