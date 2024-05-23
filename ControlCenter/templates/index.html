@@ -1,24 +1,39 @@
 <html>
+
 <head>
     <link rel="stylesheet" type="text/css" href="static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.2.3/ol.css">
 </head>
-<body>
-    <div id="gauge">
 
-    </div>
-    <div id="fpvVideo">
-        <video id="cameraVideo"></video>
+<body>
+    <div class="main">
+        <div class="gauge" id="gauge"></div>
+        <div id="fpvVideo">
+            <video id="cameraVideo"></video>
+        </div>
     </div>
     <button id="getVideo" autoplay>
-        Open HDMI
+        Open FPV
     </button>
-    <div id="map" style="width: 100%; height: 500px"></div>
+    <div class="map" id="map"></div>
+    <!-- <div id="gauge">
 
-    <script src="https://api-maps.yandex.ru/v3/?apikey={{ API_KEY }}&lang=ru_RU"></script>
+    </div>
+    <div class="mapvideo">
+        <div id="fpvVideo">
+            <video id="cameraVideo"></video>
+        </div>
+        
+    </div> -->
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/ol@v9.2.3/dist/ol.js"></script>
     <script src="https://unpkg.com/@patricksurry/g3/dist/g3-contrib.min.js"></script>
     <script src="static/gauges.js"></script>
     <script src="static/map.js"></script>
     <script src="static/video.js"></script>
+
 </body>
 
 </html>
