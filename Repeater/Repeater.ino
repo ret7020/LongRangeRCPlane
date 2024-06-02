@@ -33,7 +33,7 @@ void setup(){
     
     bool radioBeginStatus = radio.begin(); 
     
-   
+
     if (!radioBeginStatus) {while (1){}} // Halt if not radio
     
     
@@ -97,35 +97,31 @@ void setup(){
     
 }
 void loop(){
-  if(radio.available()){
-      radio.read(&data, sizeof(data));
-      if (millis() - controllerLastPacket >= 30){
+
+  if (millis() - controllerLastPacket >= 30){
         Serial.write(byte (0xFF));
         Serial.write(byte (0xFF));
         Serial.write(byte (0x1E));
-        Serial.write((byte)strtol(String(data[0], HEX).c_str(), NULL, 16));
-        Serial.write((byte)strtol(String(data[1], HEX).c_str(), NULL, 16));
-        Serial.write((byte)strtol(String(data[2], HEX).c_str(), NULL, 16));
-        Serial.write((byte)strtol(String(data[3], HEX).c_str(), NULL, 16));
+        Serial.write((byte)strtol(String(200, HEX).c_str(), NULL, 16));
+        Serial.write((byte)strtol(String(200, HEX).c_str(), NULL, 16));
+        Serial.write((byte)strtol(String(200, HEX).c_str(), NULL, 16));
+        Serial.write((byte)strtol(String(200, HEX).c_str(), NULL, 16));
         controllerLastPacket = millis();
       }
-  }
 
-//  delay(35);
+  // if(radio.available()){
+  //     radio.read(&data, sizeof(data));
+  //     if (millis() - controllerLastPacket >= 30){
+  //       Serial.write(byte (0xFF));
+  //       Serial.write(byte (0xFF));
+  //       Serial.write(byte (0x1E));
+  //       Serial.write((byte)strtol(String(data[0], HEX).c_str(), NULL, 16));
+  //       Serial.write((byte)strtol(String(data[1], HEX).c_str(), NULL, 16));
+  //       Serial.write((byte)strtol(String(data[2], HEX).c_str(), NULL, 16));
+  //       Serial.write((byte)strtol(String(data[3], HEX).c_str(), NULL, 16));
+  //       controllerLastPacket = millis();
+  //     }
+  // }
 
-  
-  
-//      Serial.print(data[0]);
-//      Serial.print(" ");
-//      Serial.print(data[1]);
-//      Serial.print(" ");
-//      Serial.print(data[2]);
-//      Serial.print(" ");
-//      Serial.print(data[3]);
-//      Serial.print(" ");
-//      Serial.println();
-//      dispLED.print(data[0]);
-//      myservo.write(map(data[1],0,1023,0,180));
-//  }
 
 }

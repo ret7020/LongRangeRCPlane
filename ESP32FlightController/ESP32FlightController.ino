@@ -6,6 +6,11 @@
 #include "Madgwick.h"
 #include <Wire.h>
 
+#ifdef HTTP_DEBUG
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include "SPIFFS.h"
+#endif
 
 EspSoftwareSerial::UART gpsUart;
 
@@ -26,8 +31,8 @@ double imuQW, imuQX, imuQY, imuQZ;
 // Servos control
 // Adjustable for different airplanes configurations
 // Indexes are predefined in such order
-#define LA_INDEX 0 // Left aileron
-#define RA_INDEX 1 // Right aileron
+#define LA_INDEX 0   // Left aileron
+#define RA_INDEX 1   // Right aileron
 #define ELEV_INDEX 2 // Elevator
 // Not used in current plane
 #define RUDDER_INDEX
@@ -37,7 +42,6 @@ Servo servos[10] = {};
 Servo leftAileron;
 Servo rightAileron;
 Servo elevator;
-
 
 #ifdef HTTP_DEBUG
 WiFiServer server(HTTP_PORT);
@@ -55,10 +59,37 @@ Madgwick filter;
 
 #endif
 
-
-
 // Updates store
 uint64_t imuLastUpdate = 0;
+
+#ifdef HTTP_DEBUG
+AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
+
+int8_t initHTTPStack()
+{
+    // Return codes:
+    // 0  - OK
+    // -1 - SPIFS problems
+    // -2 - WiFi problems
+    if (!SPIFFS.begin(true)){
+        return -1;
+    }
+
+    #ifdef WIFI_AP_MODE
+    WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PSK);
+    IPAddress IP = WiFi.softAPIP();
+    #ifdef DEBUG
+        Serial.print("AP IP address: ");
+        Serial.println(IP);
+        server.begin();
+    #endif
+
+    #endif
+
+}
+
+#endif
 
 void printf(char *format, int number, HardwareSerial &refSer)
 {
@@ -66,9 +97,9 @@ void printf(char *format, int number, HardwareSerial &refSer)
     sprintf(buffer, format, number);
     for (int i = 0; i < strlen(buffer); i++)
     {
-        refSer.write(buffer[i]); 
+        refSer.write(buffer[i]);
     }
-    refSer.write('\n'); 
+    refSer.write('\n');
 }
 
 void setup()
@@ -90,7 +121,7 @@ void setup()
     Serial2.begin(9600, SERIAL_8N1, 16, 17);
     printf("Writing 1 to pin %d", MODE_PIN, Serial);
     digitalWrite(MODE_PIN, 1); // Config mode
-    
+
     delay(2000);
 
     // Request to read 6 config regs
@@ -119,14 +150,6 @@ void setup()
     Serial.println("LoRa Ready to switch into recieve mode");
 #endif
 
-#ifdef HTTP_DEBUG
-    WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PSK);
-    IPAddress IP = WiFi.softAPIP();
-    #ifdef DEBUG    
-        Serial.print("AP IP address: ");
-        Serial.println(IP);
-        server.begin();
-    #endif
 #endif
     digitalWrite(MODE_PIN, 0); // Normal mode
     delay(1000);
@@ -139,13 +162,15 @@ void loop()
     // while (gpsUart.available()){
     //     Serial.write(gpsUart.read());
     // }
-    
+
     // LoRa recieve part (max freq)
-    if (Serial2.available()){
+    if (Serial2.available())
+    {
         byte incomingByte = Serial2.read();
         if (prev == 255 && incomingByte == 30)
         {
-            for (int i = 0; i <= 4; i++){
+            for (int i = 0; i <= 4; i++)
+            {
                 loraData[i] = Serial2.read();
             }
             if (freqCount < 20)
@@ -156,11 +181,11 @@ void loop()
             else
             {
                 lastAvgFreq = freqSum / freqCount;
-    #ifdef DEBUG
+#ifdef DEBUG
                 Serial.print(lastAvgFreq);
                 Serial.print(" ");
                 Serial.println("Hz");
-    #endif
+#endif
                 freqSum = 0;
                 freqCount = 0;
             }
@@ -173,51 +198,64 @@ void loop()
         }
     }
 
-    if (millis() - imuLastUpdate >= IMU_REFRESH_INTERVAL) {
-
+    if (millis() - imuLastUpdate >= IMU_REFRESH_INTERVAL)
+    {
     }
 
-    // // Ground WiFi
-    // #ifdef HTTP_DEBUG
-    //     WiFiClient client = server.available();
+// Ground WiFi debug
+#ifdef HTTP_DEBUG
+    WiFiClient client = server.available();
 
-    //     if (client) {                     
-    //         #if DEBUG        
-    //         Serial.println("New Client.");
-    //         #endif
-    //         String currentLine = "";
-    //         while (client.connected()) {
-    //         if (client.available()) {
-    //             char c = client.read();
-    //             #ifdef DEBUG
-    //             Serial.write(c);
-    //             #endif
-    //             header += c;
-    //             if (c == '\n') {
-    //                 if (currentLine.length() == 0) {
-    //                     client.println("HTTP/1.1 200 OK");
-    //                     client.println("Content-type:text/html");
-    //                     client.println("Connection: close");
-    //                     client.println();
-    //                     client.println();
-    //                     client.println(lastAvgFreq);
+    if (client)
+    {
+#if DEBUG
+        Serial.println("New Client.");
+#endif
+        String currentLine = "";
+        while (client.connected())
+        {
+            if (client.available())
+            {
+                char c = client.read();
+#ifdef DEBUG
+                Serial.write(c);
+#endif
+                header += c;
+                if (c == '\n')
+                {
+                    if (currentLine.length() == 0)
+                    {
+                        client.println("HTTP/1.1 200 OK");
+                        client.println("Content-type:text/html");
+                        client.println("Connection: close");
+                        client.println();
 
-    //                     break;
-    //                 } else { 
-    //                     currentLine = "";
-    //                 }
-    //             } else if (c != '\r') {
-    //                 currentLine += c;
-    //             }
-    //         }
-    //     }
-    //     // Clear the header variable
-    //     header = "";
-    //     // Close the connection
-    //     client.stop();
-    //     Serial.println("Client disconnected.");
-    //     Serial.println("");
-    // }
+                        if (header.indexOf("GET /debug/metrics"))
+                        {
+                        }
+                        client.println();
+                        client.println(lastAvgFreq);
 
-    // #endif
+                        break;
+                    }
+                    else
+                    {
+                        currentLine = "";
+                    }
+                }
+                else if (c != '\r')
+                {
+                    currentLine += c;
+                }
+            }
+        }
+        // Clear the header variable
+        header = "";
+        // Close the connection
+        client.stop();
+        Serial.println("Client disconnected.");
+        Serial.println("");
+    }
+
+#endif
 }

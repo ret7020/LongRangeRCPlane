@@ -19,7 +19,7 @@
 
 var view = new ol.View({
     center: ol.proj.fromLonLat([37.623210, 55.752563]),
-    zoom: 16
+    zoom: 10
 });
 
 var tileLayer = new ol.layer.Tile({
@@ -28,12 +28,14 @@ var tileLayer = new ol.layer.Tile({
     })
 });
 
-const features = [new ol.Feature({
+var planePoint = new ol.Feature({
     geometry: new ol.geom.Point(ol.proj.fromLonLat([37.623210, 55.752563]))
-})];
+});
+
+const dynamiCobjects = [planePoint];
 
 const vectorSource = new ol.source.Vector({
-    features
+    features: dynamiCobjects
 });
 
 const vectorLayer = new ol.layer.Vector({
@@ -47,6 +49,15 @@ const vectorLayer = new ol.layer.Vector({
 });
 
 
+
+// Sat view
+// new ol.layer.Tile({
+//     source: new ol.source.XYZ({
+//       url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+//       maxZoom: 19
+//     })
+//   })
+
 var map = new ol.Map({
     layers: [
         tileLayer,
@@ -58,7 +69,9 @@ var map = new ol.Map({
 
 // Simulate
 // Dev only
+var planeLon = 37.623210;
 
 setInterval(function () {
-    
-}, 1000);
+    planePoint.getGeometry().setCoordinates(ol.proj.fromLonLat([planeLon, 55.752563]))
+    planeLon -= 0.0005;
+}, 500); 
