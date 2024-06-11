@@ -6,8 +6,8 @@
 #include <RF24.h>
 #include <RF24_config.h>
 
-#define LEFT_VERTICAL A0
-#define LEFT_HORIZONTAL A2
+#define LEFT_VERTICAL A2
+#define LEFT_HORIZONTAL A0
 #define RIGHT_VERTICAL A1
 #define RIGHT_HORIZONTAL A3
 
@@ -17,26 +17,16 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 RF24 radio(7, 8);
-uint8_t rfData[4] = {90, 90, 90, 90};
-int leftVertical, leftHorizontal, rightVertical, rightHorizontal;
-// int joystickValuesPayload[4] = {0, 0, 0, 0};
-
-struct joystickValuesPayload
-{
-    uint8_t lv;
-    uint8_t lh;
-    uint8_t rv;
-    uint8_t rh;
-} __attribute__((packed));
-
-joystickValuesPayload;
-
-joystickValuesPayload payload;
+int16_t rfData[4] = {90, 90, 90, 90};
 
 void setup()
 {
     Serial.begin(9600);
     printf_begin();
+    pinMode(LEFT_VERTICAL, INPUT);
+    pinMode(LEFT_HORIZONTAL, INPUT);
+    pinMode(RIGHT_VERTICAL, INPUT);
+    pinMode(RIGHT_HORIZONTAL, INPUT);
 
     // Display init
     //  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
@@ -67,17 +57,21 @@ void setup()
     radio.setPALevel(RF24_PA_LOW);
     radio.openWritingPipe(0x1234567890LL);
     radio.stopListening();
+    
 }
 
 void loop()
 {
     // Read joysticks
-    rfData[0] = constrain(map(analogRead(LEFT_VERTICAL), 116, 880, 180, 0), 0, 180);    // LEFT_VERTICAL
-    rfData[1] = constrain(map(analogRead(LEFT_HORIZONTAL), 215, 880, 0, 180), 0, 180);  // LEFT_HORIZONTAL
-    rfData[2] = constrain(map(analogRead(RIGHT_VERTICAL), 273, 950, 0, 180), 0, 180);   // RIGHT_VERTICAL
-    rfData[3] = constrain(map(analogRead(RIGHT_HORIZONTAL), 292, 928, 0, 180), 0, 180); // RIGHT_HORIZONTAL
-
+    rfData[0] = constrain(map(analogRead(LEFT_VERTICAL), 115, 882, 180, 0), 0, 180);    // LEFT_VERTICAL
+    rfData[1] = constrain(map(analogRead(LEFT_HORIZONTAL), 90, 786, 0, 180), 0, 180);  // LEFT_HORIZONTAL
+    rfData[2] = constrain(map(analogRead(RIGHT_VERTICAL), 270, 960, 0, 180), 0, 180);   // RIGHT_VERTICAL
+    rfData[3] = constrain(map(analogRead(RIGHT_HORIZONTAL), 187, 828, 0, 180), 0, 180); // RIGHT_HORIZONTAL
+    
     radio.write(&rfData, sizeof(rfData));
+
+
+
     // Visualize
     //  display.setCursor(0,0);
     //  display.println(F("Potentiometers:"));
@@ -92,11 +86,7 @@ void loop()
     //  display.display();
 
 // Debug to builtin UART
-#ifdef DEBUG
-    Serial.println(rightHorizontal);
-#endif
 
     // Transmit to repeaterNode
 
-    display.clearDisplay();
 }

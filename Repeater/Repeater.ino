@@ -20,7 +20,7 @@ extern "C" {
 
 RF24 radio(NRF_CE, NRF_CSN);
 
-uint8_t data[NRF_PACKET_ITEMS];
+int16_t data[NRF_PACKET_ITEMS];
 long long controllerLastPacket = 0;
 bool ledStatus = 1;
 //SoftwareSerial loraSerial(LORA_RX, LORA_TX);
@@ -98,7 +98,7 @@ void setup(){
 }
 void loop(){
 
-  if (millis() - controllerLastPacket >= 30){
+  /*if (millis() - controllerLastPacket >= 30){
         Serial.write(byte (0xFF));
         Serial.write(byte (0xFF));
         Serial.write(byte (0x1E));
@@ -107,9 +107,24 @@ void loop(){
         Serial.write((byte)strtol(String(200, HEX).c_str(), NULL, 16));
         Serial.write((byte)strtol(String(200, HEX).c_str(), NULL, 16));
         controllerLastPacket = millis();
-      }
+      }*/
 
-  // if(radio.available()){
+  if(radio.available()){
+      radio.read(&data, sizeof(data));
+      if (millis() - controllerLastPacket >= 30){
+        Serial.write(byte (0xFF));
+        Serial.write(byte (0xFF));
+        Serial.write(byte (0x1E));
+        Serial.write((byte)strtol(String(data[0], HEX).c_str(), NULL, 16));
+        Serial.write((byte)strtol(String(data[1], HEX).c_str(), NULL, 16));
+        Serial.write((byte)strtol(String(data[2], HEX).c_str(), NULL, 16));
+        Serial.write((byte)strtol(String(data[3], HEX).c_str(), NULL, 16));
+        controllerLastPacket = millis();
+      }
+  }
+
+
+}// if(radio.available()){
   //     radio.read(&data, sizeof(data));
   //     if (millis() - controllerLastPacket >= 30){
   //       Serial.write(byte (0xFF));
@@ -122,6 +137,3 @@ void loop(){
   //       controllerLastPacket = millis();
   //     }
   // }
-
-
-}

@@ -1,12 +1,13 @@
 #include <ESP32Servo.h>
 #include "config.h"
-#include <WiFi.h>
 #include <SoftwareSerial.h>
-#include "FastIMU.h"
-#include "Madgwick.h"
 #include <Wire.h>
+#include <ESP32Servo.h>
+// #include "FastIMU.h"
+// #include "filters/Madgwick.h"
 
 #ifdef HTTP_DEBUG
+#include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include "SPIFFS.h"
@@ -35,13 +36,9 @@ double imuQW, imuQX, imuQY, imuQZ;
 #define RA_INDEX 1   // Right aileron
 #define ELEV_INDEX 2 // Elevator
 // Not used in current plane
-#define RUDDER_INDEX
+#define RUDDER_INDEX 3
 
-Servo servos[10] = {};
-
-Servo leftAileron;
-Servo rightAileron;
-Servo elevator;
+Servo servos[4];
 
 #ifdef HTTP_DEBUG
 WiFiServer server(HTTP_PORT);
@@ -72,21 +69,21 @@ int8_t initHTTPStack()
     // 0  - OK
     // -1 - SPIFS problems
     // -2 - WiFi problems
-    if (!SPIFFS.begin(true)){
+    if (!SPIFFS.begin(true))
+    {
         return -1;
     }
 
-    #ifdef WIFI_AP_MODE
+#ifdef WIFI_AP_MODE
     WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PSK);
     IPAddress IP = WiFi.softAPIP();
-    #ifdef DEBUG
-        Serial.print("AP IP address: ");
-        Serial.println(IP);
-        server.begin();
-    #endif
+#ifdef DEBUG
+    Serial.print("AP IP address: ");
+    Serial.println(IP);
+    server.begin();
+#endif
 
-    #endif
-
+#endif
 }
 
 #endif
@@ -104,10 +101,36 @@ void printf(char *format, int number, HardwareSerial &refSer)
 
 void setup()
 {
+// Init Servos
+#ifdef LA_PIN
+    Servo leftAileron;
+    servos[LA_INDEX] = leftAileron;
+    servos[LA_INDEX].attach(LA_PIN);
+    servos[LA_INDEX].write(SERVOS_INIT_ANGLE);
+    
+#endif
+#ifdef RA_PIN
+    Servo rightAileron;
+    servos[RA_INDEX] = rightAileron;
+    servos[RA_INDEX].attach(RA_PIN);
+    servos[RA_INDEX].write(SERVOS_INIT_ANGLE);
+#endif
+#ifdef ELEV_PIN
+    Servo elevator;
+    servos[ELEV_INDEX] = elevator;
+    servos[ELEV_INDEX].attach(ELEV_PIN);
+    servos[ELEV_INDEX].write(SERVOS_INIT_ANGLE);
+#endif
+#ifdef RUDDER_PIN
+    Servo rudder;
+    servos[RUDDER_INDEX] = rudder;
+    servos[RUDDER_INDEX].attach(RUDDER_PIN);
+    servos[RUDDER_INDEX].write(SERVOS_INIT_ANGLE);
+#endif
 // Debug UART
 #ifdef DEBUG
     Serial.begin(115200);
-    delay(2000);
+    delay(1000);
     Serial.println("Welcome to ESP32 FC debug");
     printf("LoRa config check at %d baud", LORA_CONFIG_BAUD, Serial);
 #endif
@@ -143,14 +166,14 @@ void setup()
     delay(1000);
     Serial2.end();
     delay(1000);
-#endif DEBUG
+#endif
+    // If no debug, switch LoRa to working
     Serial2.begin(LORA_WORKING_BAUD, SERIAL_8N1, 16, 17);
     Serial2.setTimeout(100);
 #ifdef DEBUG
     Serial.println("LoRa Ready to switch into recieve mode");
 #endif
 
-#endif
     digitalWrite(MODE_PIN, 0); // Normal mode
     delay(1000);
     Serial2.flush();
@@ -191,6 +214,13 @@ void loop()
             }
             prev = loraData[4];
             last = millis();
+// We get fresh data
+// TODO other servos
+#if defined(LA_PIN) && defined(RA_PIN)
+            servos[LA_INDEX].write(loraData[3]);
+            servos[RA_INDEX].write(loraData[3]); // ROLL_VAL
+            
+#endif
         }
         else
         {

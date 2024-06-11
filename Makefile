@@ -11,3 +11,6 @@ imu:
 	cp ./ESP32FlightController/filters/Madgwick.cpp /tmp/IMUTest/
 	arduino-cli compile /tmp/IMUTest/IMUTest.ino --fqbn esp32:esp32:nodemcu-32s --port $(PORT) --upload --verbose 
 	rm -r /tmp/IMUTest
+
+pult:
+	arduino-cli compile ./RCPult/RCPult.ino --fqbn arduino:avr:nano:cpu=atmega328old --port $(PORT) --upload --verbose 
