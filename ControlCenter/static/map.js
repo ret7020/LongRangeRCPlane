@@ -1,25 +1,6 @@
-// initMap();
-
-// async function initMap() {
-//     await ymaps3.ready;
-//     const { YMap, YMapDefaultSchemeLayer } = ymaps3;
-//     const map = new YMap(
-//         document.getElementById('map'),
-//         {
-//             location: {
-//                 center: [37.588144, 55.733842],
-//                 zoom: 10
-//             }
-//         }
-//     );
-
-//     map.addChild(new YMapDefaultSchemeLayer());
-// }
-
-
 var view = new ol.View({
     center: ol.proj.fromLonLat([37.623210, 55.752563]),
-    zoom: 10
+    zoom: 12
 });
 
 var tileLayer = new ol.layer.Tile({
@@ -49,6 +30,29 @@ const vectorLayer = new ol.layer.Vector({
 });
 
 
+var trajectory = new ol.Feature({
+    geometry: new ol.geom.LineString([])
+});
+
+var trajectoryLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({
+        features: [trajectory]
+    }),
+    style: new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'red',
+            width: 3
+        })
+    })
+});
+
+
+
+
+
+
+
+
 
 // Sat view
 // new ol.layer.Tile({
@@ -70,8 +74,20 @@ var map = new ol.Map({
 // Simulate
 // Dev only
 var planeLon = 37.623210;
+var planeLat = 55.752563;
 
 setInterval(function () {
-    planePoint.getGeometry().setCoordinates(ol.proj.fromLonLat([planeLon, 55.752563]))
-    planeLon -= 0.0005;
-}, 500); 
+    planeLon += Math.random() * (0.002 - (-0.0001)) + (-0.0001);
+    planeLat += Math.random() * (0.002 - (-0.0001)) + (-0.0001);
+    planePoint.getGeometry().setCoordinates(ol.proj.fromLonLat([planeLon, planeLat]))
+    trajectory.getGeometry().appendCoordinate(ol.proj.fromLonLat([planeLon, planeLat]));
+    // planeLon -= 0.0005;
+}, 500);
+
+
+
+
+
+
+
+map.addLayer(trajectoryLayer);
