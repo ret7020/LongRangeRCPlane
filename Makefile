@@ -14,3 +14,10 @@ imu:
 
 pult:
 	arduino-cli compile ./RCPult/RCPult.ino --fqbn arduino:avr:nano:cpu=atmega328old --port $(PORT) --upload --verbose 
+
+ebeacon:
+	mkdir -p /tmp/EmergencyBeacon/
+	cp ./EmergencyBeacon/EmergencyBeacon.cpp /tmp/EmergencyBeacon/EmergencyBeacon.ino
+	arduino-cli compile /tmp/EmergencyBeacon/EmergencyBeacon.ino --fqbn arduino:avr:nano:cpu=atmega328old --port $(PORT) --upload --verbose 
+	rm -r /tmp/EmergencyBeacon
+
