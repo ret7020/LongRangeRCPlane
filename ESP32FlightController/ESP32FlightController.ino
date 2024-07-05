@@ -11,6 +11,7 @@ byte loraData[8];
 byte prev = 0;
 int pos;
 unsigned long long last = millis();
+unsigned long long lastTelemetrySendTime = 0;
 uint16_t freqSum = 0;
 uint8_t freqCount = 0;
 uint8_t lastAvgFreq = 0;
@@ -44,6 +45,7 @@ void printf(char *format, int number, HardwareSerial &refSer)
 
 void setup()
 {
+    
 // Debug UART
 #ifdef DEBUG
     Serial.begin(115200);
@@ -83,23 +85,41 @@ void setup()
     Serial.begin(115200);
     delay(1000);
     Serial.println("Welcome to ESP32 FC debug");
-    printf("LoRa config check at %d baud", LORA_CONFIG_BAUD, Serial);
+#endif
+
+// Radio setup
+// Read LoRa config on 9600 baud
+
+#ifdef LORA_900_MODE_PIN
+pinMode(LORA_900_MODE_PIN, OUTPUT);
+#endif
+
+#ifdef LORA_433_MODE_PIN
+pinMode(LORA_433_MODE_PIN, OUTPUT);
 #endif
 
 
 #ifdef DEBUG
     Serial.println("[INFO] RX link configuring started");
-    printf("LoRa config check at %d baud", LORA_CONFIG_BAUD, Serial);
+    #ifdef LORA_900_RX_LINK
+        printf("LoRa config check at %d baud", LORA_900_CONFIG_BAUD, Serial);
+    #else
+        Serial.println("[FATAL] Can't use other links as RX");
+    #endif
+
+    // This state not implemented yet
+    #ifdef LORA_433_RX_LINK
+        printf("LoRa config check at %d baud", LORA_433_CONFIG_BAUD, Serial);
+    #endif
 #endif
 
-// Radio setup
-// Read LoRa config on 9600 baud
-pinMode(MODE_PIN, OUTPUT);
+
+
 #ifdef DEBUG
-    
+
     Serial2.begin(9600, SERIAL_8N1, 16, 17);
-    printf("Writing 1 to pin %d", MODE_PIN, Serial);
-    digitalWrite(MODE_PIN, 1); // Config mode
+    printf("Writing 1 to pin %d", LORA_900_MODE_PIN, Serial);
+    digitalWrite(LORA_900_MODE_PIN, 1); // Config mode
     
     delay(2000);
 
@@ -117,25 +137,96 @@ pinMode(MODE_PIN, OUTPUT);
         Serial.print(" ");
     }
     Serial.println();
-    printf("Switching LoRa to working baud %d", LORA_WORKING_BAUD, Serial);
+    printf("Switching RX Lora to working baud %d", LORA_900_WORKING_BAUD, Serial);
     Serial2.flush();
     delay(1000);
     Serial2.end();
     delay(1000);
 #endif DEBUG
-    Serial2.begin(LORA_WORKING_BAUD, SERIAL_8N1, 16, 17);
+    Serial2.begin(LORA_900_WORKING_BAUD, SERIAL_8N1, 16, 17);
     Serial2.setTimeout(100);
 #ifdef DEBUG
     Serial.println("LoRa Ready to switch into recieve mode");    
     delay(2000);
 #endif
-    digitalWrite(MODE_PIN, 0); // Normal mode
+    digitalWrite(LORA_900_MODE_PIN, 0); // Normal mode
     delay(1000);
     Serial2.flush();
 #ifdef DEBUG
     Serial.println("[INFO] RX link ready");
     delay(2000);
 #endif
+
+
+
+
+// TX Link
+
+#ifdef DEBUG
+    Serial.println("[INFO] TX link configuring started");
+    // This state not implemented yet
+    #ifdef LORA_433_TX_LINK
+        printf("LoRa config check at %d baud", LORA_433_CONFIG_BAUD, Serial);
+    #else
+        Serial.println("[FATAL] Can't use other links as TX");
+    #endif
+#endif
+
+
+
+#ifdef DEBUG
+
+    Serial1.begin(9600, SERIAL_8N1, LORA_433_USART1_TX, LORA_433_USART1_RX);
+    printf("Writing 1 to pin %d", LORA_433_MODE_PIN, Serial);
+    digitalWrite(LORA_433_MODE_PIN, 1); // Config mode
+    
+    delay(2000);
+
+    // Request to read 6 config regs
+
+    Serial1.write(byte(0xC1));
+    Serial1.write(byte(0x00));
+    Serial1.write(byte(0x06));
+
+
+    // Setting fixed TX mode
+    // Serial1.write(byte(0xC0));
+    // Serial1.write(byte(0x05));
+    // Serial1.write(byte(0x01));
+    // Serial1.write(byte(0x40));
+
+    delay(2000);
+    Serial.println("Config regs: ");
+    while (Serial1.available())
+    {
+        Serial.print(Serial1.read(), HEX);
+        Serial.print(" ");
+    }
+    Serial.println();
+    printf("Switching TX Lora to working baud %d", LORA_433_WORKING_BAUD, Serial);
+
+    
+
+
+    Serial1.flush();
+    delay(1000);
+    Serial1.end();
+    delay(1000);
+#endif DEBUG
+    Serial1.begin(9600, SERIAL_8N1, LORA_433_USART1_TX, LORA_433_USART1_RX);
+    Serial1.setTimeout(100);
+#ifdef DEBUG
+    Serial.println("LoRa Ready to switch into transmit mode");    
+    delay(2000);
+#endif
+    digitalWrite(LORA_433_MODE_PIN, 0); // Normal mode
+    delay(1000);
+    Serial1.flush();
+#ifdef DEBUG
+    Serial.println("[INFO] TX link ready");
+    delay(2000);
+#endif
+
 
 #ifdef HTTP_DEBUG
     #ifdef DEBUG 
@@ -161,7 +252,7 @@ void loop()
     //     Serial.write(gpsUart.read());
     // }
     
-    // LoRa recieve part
+    // Commands RX
     if (Serial2.available()){
         byte incomingByte = Serial2.read();
         if (prev == 255 && incomingByte == 30)
@@ -202,6 +293,21 @@ void loop()
             prev = incomingByte;
         }
     }
+
+    // Telemetry TX
+    if (millis() - lastTelemetrySendTime >= TELEMETRY_TX_INTERVAL){
+        Serial.println("Sent");
+        Serial1.write(byte (0xFF));
+        Serial1.write(byte (0xFF));
+        Serial1.write(byte (0x17));
+        Serial1.write(byte (0xA));
+        Serial1.write(byte (0xB));
+        Serial1.write(byte (0xC));
+        Serial1.write(byte (0xD));
+        lastTelemetrySendTime = millis();
+        
+    }
+
 
     // // Ground WiFi
     // #ifdef HTTP_DEBUG
