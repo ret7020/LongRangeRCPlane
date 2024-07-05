@@ -1,17 +1,8 @@
 #include <ESP32Servo.h>
 #include "config.h"
-#include <SoftwareSerial.h>
-#include <Wire.h>
-#include <ESP32Servo.h>
-// #include "FastIMU.h"
-// #include "filters/Madgwick.h"
-
-#ifdef HTTP_DEBUG
 #include <WiFi.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include "SPIFFS.h"
-#endif
+#include <SoftwareSerial.h>
+
 
 EspSoftwareSerial::UART gpsUart;
 
@@ -24,68 +15,20 @@ uint16_t freqSum = 0;
 uint8_t freqCount = 0;
 uint8_t lastAvgFreq = 0;
 
-#ifdef IMU_ENABLE
-double imuRoll, imuPitch, imuYaw;
-double imuQW, imuQX, imuQY, imuQZ;
-#endif
-
 // Servos control
 // Adjustable for different airplanes configurations
 // Indexes are predefined in such order
-#define LA_INDEX 0   // Left aileron
-#define RA_INDEX 1   // Right aileron
+#define LA_INDEX 0 // Left aileron
+#define RA_INDEX 1 // Right aileron
 #define ELEV_INDEX 2 // Elevator
-// Not used in current plane
-#define RUDDER_INDEX 3
 
-Servo servos[4];
+// Not used in current plane
+
+Servo servos[4] = {};
 
 #ifdef HTTP_DEBUG
 WiFiServer server(HTTP_PORT);
 String header;
-#endif
-
-// IMU Setup
-#ifdef IMU_ENABLE
-MPU6500 IMU;
-calData calib = {0};
-AccelData IMUAccel;
-GyroData IMUGyro;
-MagData IMUMag;
-Madgwick filter;
-
-#endif
-
-// Updates store
-uint64_t imuLastUpdate = 0;
-
-#ifdef HTTP_DEBUG
-AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
-
-int8_t initHTTPStack()
-{
-    // Return codes:
-    // 0  - OK
-    // -1 - SPIFS problems
-    // -2 - WiFi problems
-    if (!SPIFFS.begin(true))
-    {
-        return -1;
-    }
-
-#ifdef WIFI_AP_MODE
-    WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PSK);
-    IPAddress IP = WiFi.softAPIP();
-#ifdef DEBUG
-    Serial.print("AP IP address: ");
-    Serial.println(IP);
-    server.begin();
-#endif
-
-#endif
-}
-
 #endif
 
 void printf(char *format, int number, HardwareSerial &refSer)
@@ -94,14 +37,22 @@ void printf(char *format, int number, HardwareSerial &refSer)
     sprintf(buffer, format, number);
     for (int i = 0; i < strlen(buffer); i++)
     {
-        refSer.write(buffer[i]);
+        refSer.write(buffer[i]); 
     }
-    refSer.write('\n');
+    refSer.write('\n'); 
 }
 
 void setup()
 {
-// Init Servos
+// Debug UART
+#ifdef DEBUG
+    Serial.begin(115200);
+    delay(2000);
+    Serial.println("Welcome to ESP32 FC debug");
+    Serial.println("[INFO] Servos configuring started");
+#endif
+
+// Servos setup
 #ifdef LA_PIN
     Servo leftAileron;
     servos[LA_INDEX] = leftAileron;
@@ -135,16 +86,21 @@ void setup()
     printf("LoRa config check at %d baud", LORA_CONFIG_BAUD, Serial);
 #endif
 
-    // Radio setup
-    // Read LoRa config on 9600 baud
-
-    pinMode(MODE_PIN, OUTPUT);
 
 #ifdef DEBUG
+    Serial.println("[INFO] RX link configuring started");
+    printf("LoRa config check at %d baud", LORA_CONFIG_BAUD, Serial);
+#endif
+
+// Radio setup
+// Read LoRa config on 9600 baud
+pinMode(MODE_PIN, OUTPUT);
+#ifdef DEBUG
+    
     Serial2.begin(9600, SERIAL_8N1, 16, 17);
     printf("Writing 1 to pin %d", MODE_PIN, Serial);
     digitalWrite(MODE_PIN, 1); // Config mode
-
+    
     delay(2000);
 
     // Request to read 6 config regs
@@ -166,18 +122,37 @@ void setup()
     delay(1000);
     Serial2.end();
     delay(1000);
-#endif
-    // If no debug, switch LoRa to working
+#endif DEBUG
     Serial2.begin(LORA_WORKING_BAUD, SERIAL_8N1, 16, 17);
     Serial2.setTimeout(100);
 #ifdef DEBUG
-    Serial.println("LoRa Ready to switch into recieve mode");
+    Serial.println("LoRa Ready to switch into recieve mode");    
+    delay(2000);
 #endif
-
     digitalWrite(MODE_PIN, 0); // Normal mode
     delay(1000);
     Serial2.flush();
-    gpsUart.begin(9600, SWSERIAL_8N1, GPS_RX, GPS_TX, false);
+#ifdef DEBUG
+    Serial.println("[INFO] RX link ready");
+    delay(2000);
+#endif
+
+#ifdef HTTP_DEBUG
+    #ifdef DEBUG 
+        Serial.println("[INFO] Starting WiFi");
+    #endif
+    WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PSK);
+    IPAddress IP = WiFi.softAPIP();
+    #ifdef DEBUG 
+        Serial.print("AP IP address: ");
+        Serial.println(IP);
+        server.begin();
+        Serial.println("[INFO] WiFi Ready");
+    #endif
+#endif
+    
+
+// gpsUart.begin(9600, SWSERIAL_8N1, GPS_RX, GPS_TX, false);
 }
 
 void loop()
@@ -185,17 +160,18 @@ void loop()
     // while (gpsUart.available()){
     //     Serial.write(gpsUart.read());
     // }
-
-    // LoRa recieve part (max freq)
-    if (Serial2.available())
-    {
+    
+    // LoRa recieve part
+    if (Serial2.available()){
         byte incomingByte = Serial2.read();
         if (prev == 255 && incomingByte == 30)
         {
-            for (int i = 0; i <= 4; i++)
-            {
-                loraData[i] = Serial2.read();
-            }
+            loraData[0] = Serial2.read();
+            loraData[1] = Serial2.read();
+            loraData[2] = Serial2.read();
+            loraData[3] = Serial2.read();
+            loraData[4] = Serial2.read();
+            //        Serial.println(loraData[4]);
             if (freqCount < 20)
             {
                 freqSum += millis() - last;
@@ -204,23 +180,22 @@ void loop()
             else
             {
                 lastAvgFreq = freqSum / freqCount;
-#ifdef DEBUG
+    #ifdef DEBUG
                 Serial.print(lastAvgFreq);
                 Serial.print(" ");
                 Serial.println("Hz");
-#endif
+                Serial.println(loraData[4]);
+                
+    #endif
                 freqSum = 0;
                 freqCount = 0;
             }
             prev = loraData[4];
             last = millis();
-// We get fresh data
-// TODO other servos
-#if defined(LA_PIN) && defined(RA_PIN)
-            servos[LA_INDEX].write(loraData[3]);
-            servos[RA_INDEX].write(loraData[3]); // ROLL_VAL
-            
-#endif
+            #if defined(LA_PIN) && defined(RA_PIN)
+                servos[LA_INDEX].write(loraData[3]);
+                servos[RA_INDEX].write(loraData[3]); // ROLL_VAL
+            #endif
         }
         else
         {
@@ -228,64 +203,47 @@ void loop()
         }
     }
 
-    if (millis() - imuLastUpdate >= IMU_REFRESH_INTERVAL)
-    {
-    }
+    // // Ground WiFi
+    // #ifdef HTTP_DEBUG
+    //     WiFiClient client = server.available();
 
-// Ground WiFi debug
-#ifdef HTTP_DEBUG
-    WiFiClient client = server.available();
+    //     if (client) {                     
+    //         #if DEBUG        
+    //         Serial.println("New Client.");
+    //         #endif
+    //         String currentLine = "";
+    //         while (client.connected()) {
+    //         if (client.available()) {
+    //             char c = client.read();
+    //             #ifdef DEBUG
+    //             Serial.write(c);
+    //             #endif
+    //             header += c;
+    //             if (c == '\n') {
+    //                 if (currentLine.length() == 0) {
+    //                     client.println("HTTP/1.1 200 OK");
+    //                     client.println("Content-type:text/html");
+    //                     client.println("Connection: close");
+    //                     client.println();
+    //                     client.println();
+    //                     client.println(lastAvgFreq);
 
-    if (client)
-    {
-#if DEBUG
-        Serial.println("New Client.");
-#endif
-        String currentLine = "";
-        while (client.connected())
-        {
-            if (client.available())
-            {
-                char c = client.read();
-#ifdef DEBUG
-                Serial.write(c);
-#endif
-                header += c;
-                if (c == '\n')
-                {
-                    if (currentLine.length() == 0)
-                    {
-                        client.println("HTTP/1.1 200 OK");
-                        client.println("Content-type:text/html");
-                        client.println("Connection: close");
-                        client.println();
+    //                     break;
+    //                 } else { 
+    //                     currentLine = "";
+    //                 }
+    //             } else if (c != '\r') {
+    //                 currentLine += c;
+    //             }
+    //         }
+    //     }
+    //     // Clear the header variable
+    //     header = "";
+    //     // Close the connection
+    //     client.stop();
+    //     Serial.println("Client disconnected.");
+    //     Serial.println("");
+    // }
 
-                        if (header.indexOf("GET /debug/metrics"))
-                        {
-                        }
-                        client.println();
-                        client.println(lastAvgFreq);
-
-                        break;
-                    }
-                    else
-                    {
-                        currentLine = "";
-                    }
-                }
-                else if (c != '\r')
-                {
-                    currentLine += c;
-                }
-            }
-        }
-        // Clear the header variable
-        header = "";
-        // Close the connection
-        client.stop();
-        Serial.println("Client disconnected.");
-        Serial.println("");
-    }
-
-#endif
+    // #endif
 }

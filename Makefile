@@ -21,3 +21,5 @@ ebeacon:
 	arduino-cli compile /tmp/EmergencyBeacon/EmergencyBeacon.ino --fqbn arduino:avr:nano:cpu=atmega328old --port $(PORT) --upload --verbose 
 	rm -r /tmp/EmergencyBeacon
 
+testFcServo:
+	arduino-cli compile ./ESP32FlightController/tests/servos/servos.ino --fqbn esp32:esp32:nodemcu-32s --port $(PORT) --upload --verbose 
