@@ -80,6 +80,16 @@ void setup()
     servos[RUDDER_INDEX].attach(RUDDER_PIN);
     servos[RUDDER_INDEX].write(SERVOS_INIT_ANGLE);
 #endif
+
+// Motor arming
+#ifdef ESC_PIN
+    ledcSetup(0, 200, 8);
+    ledcAttachPin(ESC_PIN, 0);
+
+    ledcWrite(0, 51);
+    delay(2000);
+#endif
+
 // Debug UART
 #ifdef DEBUG
     Serial.begin(115200);
@@ -184,16 +194,16 @@ pinMode(LORA_433_MODE_PIN, OUTPUT);
 
     // Request to read 6 config regs
 
-    Serial1.write(byte(0xC1));
-    Serial1.write(byte(0x00));
-    Serial1.write(byte(0x06));
+    // Serial1.write(byte(0xC1));
+    // Serial1.write(byte(0x00));
+    // Serial1.write(byte(0x06));
 
 
     // Setting fixed TX mode
-    // Serial1.write(byte(0xC0));
-    // Serial1.write(byte(0x05));
-    // Serial1.write(byte(0x01));
-    // Serial1.write(byte(0x40));
+    Serial1.write(byte(0xC0));
+    Serial1.write(byte(0x03));
+    Serial1.write(byte(0x01));
+    Serial1.write(byte(0x3));
 
     delay(2000);
     Serial.println("Config regs: ");
@@ -214,7 +224,7 @@ pinMode(LORA_433_MODE_PIN, OUTPUT);
     delay(1000);
 #endif DEBUG
     Serial1.begin(9600, SERIAL_8N1, LORA_433_USART1_TX, LORA_433_USART1_RX);
-    Serial1.setTimeout(100);
+    // Serial1.setTimeout(100);
 #ifdef DEBUG
     Serial.println("LoRa Ready to switch into transmit mode");    
     delay(2000);
@@ -275,7 +285,7 @@ void loop()
                 Serial.print(lastAvgFreq);
                 Serial.print(" ");
                 Serial.println("Hz");
-                Serial.println(loraData[4]);
+                // Serial.println(loraData[4]);
                 
     #endif
                 freqSum = 0;
@@ -287,6 +297,9 @@ void loop()
                 servos[LA_INDEX].write(loraData[3]);
                 servos[RA_INDEX].write(loraData[3]); // ROLL_VAL
             #endif
+            #ifdef ELEV_PIN
+                servos[ELEV_INDEX].write(loraData[2]);
+            #endif
         }
         else
         {
@@ -295,18 +308,17 @@ void loop()
     }
 
     // Telemetry TX
-    if (millis() - lastTelemetrySendTime >= TELEMETRY_TX_INTERVAL){
-        Serial.println("Sent");
-        Serial1.write(byte (0xFF));
-        Serial1.write(byte (0xFF));
-        Serial1.write(byte (0x17));
-        Serial1.write(byte (0xA));
-        Serial1.write(byte (0xB));
-        Serial1.write(byte (0xC));
-        Serial1.write(byte (0xD));
-        lastTelemetrySendTime = millis();
+    // if (millis() - lastTelemetrySendTime >= TELEMETRY_TX_INTERVAL){
+    //     Serial1.write(byte (0xFF));
+    //     Serial1.write(byte (0xFF));
+    //     Serial1.write(byte (0x17));
+    //     Serial1.write(byte (0xA));
+    //     Serial1.write(byte (0xB));
+    //     Serial1.write(byte (0xC));
+    //     Serial1.write(byte (0xD));
+    //     lastTelemetrySendTime = millis();
         
-    }
+    // }
 
 
     // // Ground WiFi

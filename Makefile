@@ -23,3 +23,6 @@ ebeacon:
 
 testFcServo:
 	arduino-cli compile ./ESP32FlightController/tests/servos/servos.ino --fqbn esp32:esp32:nodemcu-32s --port $(PORT) --upload --verbose 
+
+testFcEsc:
+	arduino-cli compile ./ESP32FlightController/tests/esc/esc.ino --fqbn esp32:esp32:nodemcu-32s --port $(PORT) --upload --verbose 

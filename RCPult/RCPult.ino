@@ -65,11 +65,11 @@ void loop()
     // Read joysticks
     rfData[0] = constrain(map(analogRead(LEFT_VERTICAL), 115, 882, 180, 0), 0, 180);    // LEFT_VERTICAL
     rfData[1] = constrain(map(analogRead(LEFT_HORIZONTAL), 90, 786, 0, 180), 0, 180);  // LEFT_HORIZONTAL
-    rfData[2] = constrain(map(analogRead(RIGHT_VERTICAL), 270, 960, 0, 180), 0, 180);   // RIGHT_VERTICAL
-    rfData[3] = constrain(map(analogRead(RIGHT_HORIZONTAL), 187, 828, 0, 180), 0, 180); // RIGHT_HORIZONTAL
+    rfData[2] = constrain(map(analogRead(RIGHT_VERTICAL), 270, 960, 0, 180), 45, 153);   // RIGHT_VERTICAL
+    rfData[3] = constrain(map(analogRead(RIGHT_HORIZONTAL), 187, 828, 0, 180), 40, 140); // RIGHT_HORIZONTAL
     
     radio.write(&rfData, sizeof(rfData));
-
+    // Serial.println(rfData[2]);
 
 
     // Visualize
